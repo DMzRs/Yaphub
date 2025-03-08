@@ -1,0 +1,81 @@
+*{
+    margin: 0;
+    padding: 0;
+    font-family: Inter;
+}
+
+.background{
+    margin-left: 140px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.header{
+    width: 100%;
+    box-shadow: 1px 1px 5px 0px;
+    padding: 10px;
+    padding-bottom: 0;
+}
+
+.header h1{
+    font-size: 22px;
+    color: #264A82;
+}
+
+.adminName{
+    align-self: flex-start;
+    width: 100%;
+    margin-top: 20px;
+    padding: 5px 20px;
+    color: #264A82;
+}
+
+.adminName h1{
+    font-size: 28px;
+}
+
+.numerical-info-container{
+    width: 90vw;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+    box-shadow: 1px 1px 5px 0px;
+}
+
+.info{
+    background-color: #264A82;
+    width: 200px;
+    margin: 30px;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.info h3{
+    font-size: 12px;
+    color: #E9EEF0;
+}
+
+.info h2{
+    font-size: 24px;
+    text-align: center;
+    color: #E9EEF0;
+}
+
+.charts{
+    margin-top: 40px;
+    width: 90%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.chart-container{
+    width: 500px;
+    height: 500px;
+}

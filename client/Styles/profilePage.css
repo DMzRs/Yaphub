@@ -1,0 +1,190 @@
+*{
+    padding: 0;
+    margin: 0;
+    font: Roboto;
+}
+
+
+.background{
+    margin-left: 100px;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.info_container{
+    background-color: #E9EEF0;
+    box-shadow: 0px 2px 5px 2px #C1C8CB;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: column;
+    width: 1400px;
+    height: 80vh;
+    border-radius: 20px;
+    margin-top: 100px;
+}
+
+.editBtn_Profile{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+.edit_Profbtn{
+    margin-right: auto;
+    margin-top: 30px;
+    margin-left: 50px;
+}
+
+.edit_Profbtn button{
+    padding: 8px 20px;
+    font-weight: 400;
+    background-color: #12346F;
+    box-shadow: 0px 2px 5px 1px #24242476;
+    border: 0;
+    width: 150px;
+    font-size: 18px;
+    border-radius: 10px;
+    color: #FEFEFE;
+}
+
+.edit_Profbtn button:hover{
+    background-color: #1c4284;
+}
+
+.profile {
+    position: absolute;
+    margin-bottom: 65vh;
+    background-color: #12346F;
+    padding: 8px;
+    border-radius: 50%;
+}
+.profile img{
+    width: 170px;
+    height: 170px;
+    border-radius: 50%;
+}
+
+.bio_name{
+    text-align: center;
+    margin-bottom: 130px;
+}
+
+.bio_name h1{
+    font-weight: 600;
+    font-size: 30px;
+}
+
+.bio_name h2{
+    font-weight: 400;
+    font-size: 14px;
+}
+
+.current{
+    width: 600px;
+    display: flex;
+    margin-bottom: 100px;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.current_group{
+    text-align: center;
+}
+
+.current_group h2{
+    font-size: 30px;
+    font-weight: 300;
+}
+
+.current_group h1{
+    font-size: 40px;
+    font-weight: 400;
+}
+
+.vl{
+    border: 1px solid black;
+    height: 150px;
+}
+
+.current_friends{
+    text-align: center;
+}
+
+.current_friends h2{
+    font-size: 30px;
+    font-weight: 300;
+}
+
+.current_friends h1{
+    font-size: 40px;
+    font-weight: 400;
+}
+
+.modal-header{
+   background-color: #12346F;
+   color: #E9EEF0;
+}
+
+.modal-footer{
+    background-color: #12346F;
+   color: #E9EEF0;
+}
+
+.modal-body{
+    background-color: #E9EEF0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.modalForms div{
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    justify-content: flex-start;
+    margin-top: 10px;
+}
+
+.modalForms label{
+    width: 200px;
+    font-size: 18px;
+    text-align: end;
+    margin-left: 50px;
+}
+
+.modalForms input, .modalForms select{
+    font-size: 18px;
+    margin-left: 50px;
+}
+
+.inputS{
+    width: 300px;
+    border: 0;
+    border-bottom: 1px solid black;
+    padding-bottom: 2px;
+    background-color: #E9EEF0;
+}
+
+.inputS:focus{
+    border: 0;
+    outline: 0;
+    border-bottom: 1px solid black;
+}
+
+@media  (max-width: 1280px) and (max-height: 720px) {
+    .info_container{
+        width: 80%;
+    }
+
+    .profile img {
+        width: 150px;
+        height: 150px;
+    }
+
+}
