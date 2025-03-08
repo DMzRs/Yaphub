@@ -80,5 +80,5 @@ if (isset($_POST['submit'])) {
     }   
 } 
 
-header("Location: ../login.php");
+header("Location: ../../client/login.php");
 exit();
