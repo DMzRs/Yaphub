@@ -21,6 +21,7 @@ $file_type = isset($data['file_type']) ? $data['file_type'] : null;
 
 // Determine message type
 $message_type = "text"; // Default is text message
+
 if ($file_url) {
     $message_type = $file_type === "video" ? "video" : "image";
 }

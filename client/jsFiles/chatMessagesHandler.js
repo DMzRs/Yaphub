@@ -25,9 +25,10 @@ let lastMessageTime = null;
 let messages = [];
 let config = {};
 
-// for load more button
+// Create Load More button
 loadMoreBtn.innerText = "Load More...";
 loadMoreBtn.classList.add("load-more-btn");
+loadMoreBtn.style.display = "none"; 
 loadMoreBtn.addEventListener("click", loadMoreMessages);
 chatContainer.prepend(loadMoreBtn);
 
@@ -48,45 +49,70 @@ async function loadConfig() {
 }
 
 // connect the user to the chat
-function joinChat(user_id, chat_id) {
-    currentUser = user_id;
-    currentChat = chat_id;
+async function joinChat(user_id, chat_id) {
+    try {
+        // Validate user via PHP
+        await loadConfig();
 
-    loadMessages();
+        const response = await fetch(config.CHAT_VALIDATION_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ user_id, chat_id })
+        });
 
-    socket.emit("enterRoom", { user_id, chat_id });
-
-    socket.on("join_leftChat", (data) => {
-        displayUserJoined(data.user_id, data.text);
-    });
-
-    socket.on("message", (message) => {
-        console.log("Received message:", message);
-        const { user_id, text, file_url, file_type, timestamp } = message;
-        const time = timestamp ? new Date(timestamp) : new Date();
-        displayMessage(user_id, text, time, file_url, file_type);
-    });
-    
-    socket.on("userList", (data) => {
-        updateUserList(data.users);
-    });
-
-    socket.on("errorMessage", (msg) => {
-        console.error("Error:", msg);
-    });
-
-    socket.on("typing", async (user_id, chat_id) => {
-        const user = await fetchUserProfile(user_id);
-        if (user_id !== currentUser) {
-            typingIndicator.innerText = `${user.firstName} is typing...`;
+        const rawText = await response.text();
+        let data = JSON.parse(rawText);
+        
+        if (!data.success) {
+            socket.emit("errorMessage", "You are not a member of this chat.");
+            return;
         }
-    });
-    
 
-    socket.on("stopTyping", (user_id, chat_id) => {
-        typingIndicator.innerText = "";
-    });
+        // Validation successful
+        currentUser = user_id;
+        currentChat = chat_id;
+        loadMessages();
+
+        // Emit event only if validation is successful
+        socket.emit("enterRoom", { user_id, chat_id });
+
+        // Handle socket events
+        socket.on("join_leftChat", (data) => {
+            displayUserJoined(data.user_id, data.text);
+        });
+
+        socket.on("message", (message) => {
+            console.log("Received a message!");
+            const { user_id, text, file_url, file_type, timestamp } = message;
+            const time = timestamp ? new Date(timestamp) : new Date();
+            displayMessage(user_id, text, time, file_url, file_type);
+        });
+
+        socket.on("userList", (data) => {
+            updateUserList(data.users);
+        });
+
+        socket.on("errorMessage", (msg) => {
+            console.error("Error:", msg);
+        });
+
+        socket.on("typing", async (user_id, chat_id) => {
+            const user = await fetchUserProfile(user_id);
+            if (user_id !== currentUser) {
+                typingIndicator.innerText = `${user.firstName} is typing...`;
+            }
+        });
+
+        socket.on("stopTyping", (user_id, chat_id) => {
+            typingIndicator.innerText = "";
+        });
+
+    } catch (error) {
+        socket.emit("errorMessage", "An error occurred while connecting to the chat.");
+    }
 }
+
+
 
 // load message details
 async function loadCurrentChatDetails(chatId) {
@@ -156,15 +182,40 @@ async function loadCurrentChatDetails(chatId) {
 }
 
 // sends a message to server
-function sendMessage() {
+async function sendMessage() {
+    await loadConfig();
+
     const text = messageInput.value.trim();
 
     if (text === "" || !currentChat || !currentUser) return;
 
-    socket.emit("message", { user_id: currentUser, chat_id: currentChat, text });
+    // Construct message payload
+    const messageData = { user_id: currentUser, chat_id: currentChat, text };
 
-    messageInput.value = "";
+    try {
+        // Save message to the database
+        const dbResponse = await fetch(config.SAVE_MESSAGE_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(messageData),
+        });
+
+        if (!dbResponse.ok) {
+            console.error("Database error: Failed to store message");
+            socket.emit("errorMessage", "Message could not be saved.");
+            return;
+        }
+
+        // Emit message event only if saving was successful
+        socket.emit("message", messageData);
+
+        // Clear input field
+        messageInput.value = "";
+    } catch (error) {
+        socket.emit("errorMessage", "An error occurred while sending the message.");
+    }
 }
+
 
 // update the log of current users on chat
 function updateUserList(users) {
@@ -333,13 +384,9 @@ async function loadMessages() {
 async function loadMoreMessages() {
     if (!lastMessageTime) return;
 
-    console.log("Loading more messages. Last message time:", lastMessageTime);
-
     try {
         const response = await fetch(`${config.GET_MESSAGES_URL}?chat_id=${currentChat}&limit=20&last_time=${encodeURIComponent(lastMessageTime)}`);
         const data = await response.json();
-
-        console.log("Response data:", data);
 
         if (!data.success) {
             console.error("Error loading more messages:", data.message);
@@ -347,7 +394,6 @@ async function loadMoreMessages() {
         }
 
         if (data.messages.length === 0) {
-            console.log("No more messages to load.");
             loadMoreBtn.style.display = "none";
             return;
         }
@@ -368,10 +414,8 @@ async function loadMoreMessages() {
         });
 
         lastMessageTime = data.messages[0].time;  
-        console.log("Updated lastMessageTime:", lastMessageTime);
 
         if (data.messages.length < 20) {
-            console.log("Reached the oldest message. Hiding Load More button.");
             loadMoreBtn.style.display = "none";
         }
 
@@ -385,7 +429,6 @@ async function loadMoreMessages() {
 
 // Display messages properly
 async function displayMessage(user_id, text = null, time, file_url = null, file_type = null) {
-    console.log("Displaying message:", { user_id, text, file_url, file_type });
 
     const messageDiv = document.createElement("div");
     messageDiv.classList.add(user_id == currentUser ? "message-me" : "message-others");
@@ -546,28 +589,51 @@ fileInput.addEventListener("change", async () => {
 
     try {
         console.log("Uploading file...");
-
+    
         const uploadResponse = await fetch(config.UPLOAD_FILE_MESSAGE_URL, {
             method: "POST",
             body: formData,
         });
-
+    
         const uploadData = await uploadResponse.json();
         if (!uploadData.success) {
             console.error("Upload error:", uploadData.message);
             alert("File upload failed: " + uploadData.message);
             return;
         }
-
+    
         const { file_url, file_type } = uploadData;
+
         console.log("File uploaded successfully:", file_url, file_type);
-
-        console.log("Emitting file message:", { file_url, file_type });
-        socket.emit("message", { user_id: currentUser, chat_id: currentChat, text: null, file_url, file_type });
-
+    
+        // Construct message payload
+        const messageData = { 
+            user_id: currentUser, 
+            chat_id: currentChat, 
+            text: null, // No text for file messages
+            file_url, 
+            file_type 
+        };
+    
+        // Store message in the database
+        const dbResponse = await fetch(config.SAVE_MESSAGE_URL, { // Replace process.env
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(messageData),
+        });
+    
+        if (!dbResponse.ok) {
+            console.error("Database error: Failed to store message");
+            socket.emit("errorMessage", "Message could not be saved.");
+            return;
+        }
+    
+        console.log("Emitting file message:", messageData);
+        socket.emit("message", messageData);
+    
     } catch (error) {
-        console.error("File upload failed:", error);
-        alert("An error occurred while uploading the file.");
+        console.error("File upload or message save failed:", error);
+        alert("An error occurred while processing the file.");
     }
 });
 
