@@ -27,30 +27,38 @@
                   <button class="createGroupbtn" name="createGroup">Create Group</button>
               </div>
             </div>
-            <div class="error_message">
-              
-            </div>
             <div class="second-container">
-              <div class="search-members-container">
-                <div class="search-members">
-                    <form action="">
-                      <input type="text" name="searchMember" id="searchMember" placeholder="Search for a user" required>
-                    </form>
-                </div>
-                <div class="show-users">
-                  <!-- diri sulod ang wa na add -->
-                </div>
+              <div class="error_message">
+              
               </div>
-              <div class="members-container">
-                <div class="memberTitle">
-                  <h2>Members:</h2>
+              <div class="container-wrapper">
+                <div class="search-members-container">
+                  <div class="search-members">
+                      <form action="">
+                        <input type="text" name="searchMember" id="searchMember" placeholder="Search for a user" required>
+                      </form>
+                  </div>
+                  <div class="show-users">
+                    <!-- diri sulod ang wa na add -->
+                  </div>
                 </div>
-                <div class="added-members">
-                  <!-- diri sulod ang na add -->
-                </div> 
+                <div class="members-container">
+                  <div class="memberTitle">
+                    <h2>Members:</h2>
+                  </div>
+                  <div class="added-members">
+                    <!-- diri sulod ang na add -->
+                  </div> 
+                </div>
               </div>
             </div>
       </div>
+      <div id="customAlertModal" class="modal">
+            <div class="modal-content">
+                <p id="alertMessage"></p>
+                <button id="modalOkButton">OK</button>
+            </div>
+        </div>
     </section>
     <script src="jsFiles/createGroup.js"></script>
 </body>

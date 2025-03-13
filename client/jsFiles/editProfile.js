@@ -1,6 +1,8 @@
-let config = {}; // Config object to store API path
+let config = {};
+const email = document.getElementById('email').value.trim();
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// to ensure that config is loaded
+
 async function loadConfig() {
     try {
         const response = await fetch('http://localhost:3000/api/config'); // Ensure correct API path
@@ -23,55 +25,84 @@ document.getElementById('saveProfileChanges').addEventListener('click', async fu
     }
 
     const firstName = document.getElementById('firstName').value.trim();
-    if (firstName !== '') {
-        formData.append('firstName', firstName);
-    }
-
     const lastName = document.getElementById('lastName').value.trim();
-    if (lastName !== '') {
-        formData.append('lastName', lastName);
-    }
-
     const email = document.getElementById('email').value.trim();
+    const address = document.getElementById('address').value.trim();
+
+    if (firstName !== '') formData.append('firstName', firstName);
+    if (lastName !== '') formData.append('lastName', lastName);
     if (email !== '') {
+        if (!emailRegex.test(email)) {
+            closeEditProfileModal();
+            showModal("Please enter a valid email address!", "error");
+            return;
+        }
         formData.append('email', email);
     }
-
-    const address = document.getElementById('address').value.trim();
-    if (address !== '') {
-        formData.append('address', address);
-    }
+    if (address !== '') formData.append('address', address);
 
     if (currentPassword !== '') {
         formData.append('currentPassword', currentPassword);
 
         if (newPassword === '') {
-            alert('Please enter a new password if you are changing your password.');
+            closeEditProfileModal();
+            showModal('Please enter a new password!', "error");
             return;
         }
-        formData.append('newPassword', newPassword);
+        formData.append("newPassword", newPassword);
+    }
+
+    if (
+        fileInput.files.length === 0 &&
+        firstName === '' &&
+        lastName === '' &&
+        email === '' &&
+        address === '' &&
+        currentPassword === ''
+    ) {
+        closeEditProfileModal();
+        showModal("No changes were made!", "error");
+        return;
     }
 
     fetch(config.EDIT_PROFILE_URL, {
         method: 'POST',
         body: formData
     })
-    .then(response => response.text()) // Get raw text instead of JSON
-    .then(text => {
-        console.log("Raw Response:", text); // Log the response to check for errors
-        return JSON.parse(text); // Parse JSON after logging
-    })
+    .then(response => response.json())
     .then(data => {
+        closeEditProfileModal();
+
         if (data.success) {
-            alert('Profile updated successfully!');
-            location.reload();
+            showModal("Profile updated successfully!", "success", true);
         } else {
-            alert('Error: ' + data.error);
+            showModal(data.error || "Something went wrong!", "error");
         }
     })
     .catch(error => {
-        console.error('Error updating profile:', error);
-        alert('An error occurred while updating the profile.');
+        closeEditProfileModal();
+        showModal("An error occurred: " + error.message, "error");
     });
-    
 });
+
+function closeEditProfileModal() {
+    var editProfileModal = bootstrap.Modal.getInstance(document.getElementById('editProfile'));
+    if (editProfileModal) {
+        editProfileModal.hide();
+    }
+}
+
+// Function to show the custom alert modal
+function showModal(message, type = "error", reload = false) {
+    const alertMessage = document.getElementById("alertMessage");
+    alertMessage.innerHTML = message;
+    alertMessage.style.color = type === "success" ? "green" : "red";
+    document.getElementById("customAlertModal").style.display = "flex";
+    document.getElementById("modalOkButton").setAttribute("data-reload", reload);
+}
+
+// Close modal when clicking OK
+document.getElementById("modalOkButton").onclick = function () {
+    document.getElementById("customAlertModal").style.display = "none";
+    location.reload();
+};

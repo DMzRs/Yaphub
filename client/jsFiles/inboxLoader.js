@@ -1,4 +1,5 @@
 const inboxContainer = document.getElementById("inbox");
+const searchInbox = document.getElementById("searchInbox");
 
 // Load config
 async function loadConfig() {
@@ -123,3 +124,17 @@ function formatDate(timestamp) {
 function openChat(chatId) {
     window.location.href = `messagePage.php?chat_id=${chatId}`;
 }
+
+searchInbox.addEventListener("input", function () {
+    const query = searchInbox.value.toLowerCase();
+    const chatItems = inboxContainer.querySelectorAll(".last-message");
+
+    chatItems.forEach(chatItem => {
+        const chatName = chatItem.querySelector(".names-msg h3").textContent.toLowerCase();
+        if (chatName.includes(query)) {
+            chatItem.style.display = "flex"; // Show matching chat
+        } else {
+            chatItem.style.display = "none"; // Hide non-matching chat
+        }
+    });
+});

@@ -25,6 +25,10 @@ if (isset($_POST['submit'])) {
         header("Location: ../../client/login.php?error=Password is required!");
         exit();
     }
+    // if (strlen($password) < 8) {
+    //     header("Location: ../../client/login.php?error=Password must be at least 8 characters!");
+    //     exit();
+    // }
     try {
         // Check if admin
         $stmtAdmin = $pdo->prepare("SELECT * FROM admin WHERE adminEmail = ?");

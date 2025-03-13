@@ -139,9 +139,21 @@ document.addEventListener("DOMContentLoaded", async function () {
         
         // clear previous error messages
         errorContainer.innerHTML = "";
-
-        if (groupName === "" || selectedUsers.length < 2) { 
-            errorContainer.innerHTML = `<p class="error">Please enter a group name or add at least 3 members!</p>`;
+        
+        if (groupName === "") { 
+            errorContainer.innerHTML = `<p class="error">Please enter a group name!</p>`;
+            return;
+        }
+        if (selectedUsers.length < 2) {
+            errorContainer.innerHTML = `<p class="error">Please add at least 3 members!</p>`;
+            return;
+        }
+        if (groupName.length < 3) {
+            errorContainer.innerHTML = `<p class="error">Group name is too short!</p>`;
+            return;
+        }
+        if (groupName.length > 10) {
+            errorContainer.innerHTML = `<p class="error">Group name is too long!</p>`;
             return;
         }
         
@@ -153,12 +165,27 @@ document.addEventListener("DOMContentLoaded", async function () {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert("Group created successfully!");
-                window.location.reload();
+                showModal("Group created successfully!", "success", true);
             } else {
-                alert("Error creating group: " + data.error);
+                showModal("Error creating group: " + data.error, "error");
             }
         })
         .catch(error => console.error("Error:", error));
     });
 });
+
+
+// Function to show the custom alert modal
+function showModal(message, type = "error", reload = false) {
+    const alertMessage = document.getElementById("alertMessage");
+    alertMessage.innerHTML = message;
+    alertMessage.style.color = type === "success" ? "green" : "red";
+    document.getElementById("customAlertModal").style.display = "flex";
+    document.getElementById("modalOkButton").setAttribute("data-reload", reload);
+}
+
+// Close modal when clicking OK
+document.getElementById("modalOkButton").onclick = function () {
+    document.getElementById("customAlertModal").style.display = "none";
+    window.location.reload();
+};

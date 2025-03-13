@@ -24,19 +24,28 @@ try {
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$user) {
-        throw new Exception('User not found');
+        throw new Exception('User not found!');
     }
 
     // Verify current password if provided
     if (!empty($currentPassword)) {
+        if (strlen($currentPassword) < 8) {
+            throw new Exception('Current password must be at least 8 characters long!');
+        }
         if (!password_verify($currentPassword, $user['password'])) {
-            throw new Exception('Current password is incorrect');
+            throw new Exception('Current password is incorrect!');
         }
 
         if (!empty($newPassword)) {
+            if (strlen($newPassword) < 8) {
+                throw new Exception('New password must be at least 8 characters long!');
+            }
+            if ($newPassword === $currentPassword) {
+                throw new Exception('New password must be different from the current password!');
+            }
             $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
         } else {
-            throw new Exception('New password cannot be empty if changing password');
+            throw new Exception('New password cannot be empty if changing password!');
         }
     } else {
         $hashedPassword = $user['password'];
@@ -49,7 +58,7 @@ try {
         $fileExtension = strtolower(pathinfo($profilePicture['name'], PATHINFO_EXTENSION));
 
         if (!in_array($fileExtension, $allowedExtensions)) {
-            throw new Exception('Only JPG and PNG files are allowed.');
+            throw new Exception('Only JPG and PNG files are allowed!');
         }
 
         $targetDir = __DIR__ . "/../../client/images/profile_img/";
@@ -92,7 +101,7 @@ try {
     $_SESSION['firstName'] = $firstName ?: $_SESSION['firstName'];
     $_SESSION['lastName'] = $lastName ?: $_SESSION['lastName'];
     $_SESSION['address'] = $address ?: $_SESSION['address'];
-    $_SESSION['profile_picture'] = $profilePicturePath;
+    $_SESSION['profile_picture'] = $profilePicturePath ?? 'images/profile_img/default_profile.jpg';
 
     echo json_encode(['success' => true]);
 } catch (Exception $e) {
